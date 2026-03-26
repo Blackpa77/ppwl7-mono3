@@ -8,7 +8,7 @@ export function createOAuthClient() {
   );
 }
 
-export function getAuthUrl(oauth2Client: InstanceType<typeof google.auth.OAuth2>) {
+export function getAuthUrl(oauth2Client: any) {
   return oauth2Client.generateAuthUrl({
     access_type: "offline",
     scope: [

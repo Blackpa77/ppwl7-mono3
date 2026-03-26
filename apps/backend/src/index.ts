@@ -34,14 +34,14 @@ const app = new Elysia()
   // --- AUTH ROUTES ---
 
   // Redirect mahasiswa ke halaman login Google
-  .get("/auth/login", ({ redirect }) => {
+  .get("/auth/login", ({ redirect }: { redirect: (url: string) => Response }) => {
     const oauth2Client = createOAuthClient();
     const url = getAuthUrl(oauth2Client);
     return redirect(url);
   })
 
   // Google callback setelah login
-  .get("/auth/callback", async ({ query, set, cookie: { session }, redirect }) => {
+  .get("/auth/callback", async ({ query, set, cookie: { session }, redirect }: { query: Record<string, string>; set: { status: number }; cookie: { session: any }; redirect: (url: string) => Response }) => {
     const { code } = query as { code: string };
 
     if (!code) {
@@ -69,7 +69,7 @@ const app = new Elysia()
   })
 
   // Cek status login
-  .get("/auth/me", ({ cookie: { session } }) => {
+  .get("/auth/me", ({ cookie: { session } }: { cookie: { session: any } }) => {
     const sessionId = session?.value as string;
     if (!sessionId || !tokenStore.has(sessionId)) {
       return { loggedIn: false };
@@ -78,7 +78,7 @@ const app = new Elysia()
   })
 
   // Logout
-  .post("/auth/logout", ({ cookie: { session } }) => {
+  .post("/auth/logout", ({ cookie: { session } }: { cookie: { session: any } }) => {
     if(!session) return { success: false };
 
     const sessionId = session?.value as string;
@@ -92,7 +92,7 @@ const app = new Elysia()
   // --- CLASSROOM ROUTES ---
 
   // Ambil daftar courses mahasiswa
-  .get("/classroom/courses", async ({ cookie: { session }, set }) => {
+  .get("/classroom/courses", async ({ cookie: { session }, set }: { cookie: { session: any }; set: { status: number } }) => {
     const sessionId = session?.value as string;
     const tokens = sessionId ? tokenStore.get(sessionId) : null;
 
@@ -106,7 +106,7 @@ const app = new Elysia()
   })
 
   // Ambil coursework + submisi untuk satu course
-  .get("/classroom/courses/:courseId/submissions", async ({ params, cookie: { session }, set }) => {
+  .get("/classroom/courses/:courseId/submissions", async ({ params, cookie: { session }, set }: { params: Record<string, string>; cookie: { session: any }; set: { status: number } }) => {
     const sessionId = session?.value as string;
     const tokens = sessionId ? tokenStore.get(sessionId) : null;
 
@@ -123,9 +123,9 @@ const app = new Elysia()
     ]);
 
     // Gabungkan coursework dengan submisi
-    const submissionMap = new Map(submissions.map((s) => [s.courseWorkId, s]));
+    const submissionMap = new Map(submissions.map((s: any) => [s.courseWorkId, s]));
 
-    const result = courseWorks.map((cw) => ({
+    const result = courseWorks.map((cw: any) => ({
       courseWork: cw,
       submission: submissionMap.get(cw.id) ?? null,
     }));
